@@ -22,7 +22,12 @@ import sys
 from PIL import Image, ImageDraw, ImageOps
 
 
-def process_images(non_circle_input_dir, circle_input_dir, output_dir):
+def process_images(
+    non_circle_input_dir: str,
+    circle_input_dir: str,
+    output_dir: str,
+    resize: int,
+):
     """
     Processes the images in the input directories and saves them to the output
     directory.
@@ -46,12 +51,12 @@ def process_images(non_circle_input_dir, circle_input_dir, output_dir):
             continue
 
         image = Image.open(input_path)
-        image = image.resize((100, 100))
+        image = image.resize((resize, resize))
 
         save_image(image, output_dir, filename)
 
     for filename in os.listdir(non_circle_input_dir):
-        input_path = os.path.join(non_circle_input_dir, filename)
+        input_path: str = os.path.join(non_circle_input_dir, filename)
 
         if not os.path.isfile(input_path):
             continue
@@ -63,7 +68,7 @@ def process_images(non_circle_input_dir, circle_input_dir, output_dir):
         save_image(image, output_dir, filename)
 
 
-def crop_to_circle(image):
+def crop_to_circle(image: Image.Image) -> Image.Image:
     """
     Crops the image to a circle shape.
 
@@ -73,7 +78,7 @@ def crop_to_circle(image):
     :return:
         The cropped image.
     """
-    size = min(image.size)
+    size: int = min(image.size)
     background = Image.new("RGBA", image.size, (255, 255, 255, 0))
     mask = Image.new("RGBA", image.size, 0)
     draw = ImageDraw.Draw(mask)
@@ -84,7 +89,7 @@ def crop_to_circle(image):
     return image
 
 
-def save_image(image, output_dir, filename):
+def save_image(image: Image.Image, output_dir: str, filename: str):
     """
     Saves the image to the output directory in both PNG and JPEG format.
 
@@ -97,8 +102,8 @@ def save_image(image, output_dir, filename):
     :param filename:
         The name of the file to save the image as.
     """
-    output_name = os.path.splitext(filename)[0]
-    output_path_png = os.path.join(output_dir, f"{output_name}.png")
+    output_name: str = os.path.splitext(filename)[0]
+    output_path_png: str = os.path.join(output_dir, f"{output_name}.png")
     image.save(output_path_png, format="PNG", compress_level=9)
     if "A" in image.mode:
         # Extract the alpha channel and invert it
@@ -108,11 +113,11 @@ def save_image(image, output_dir, filename):
         image.paste((255, 255, 255), mask=alpha)
         # Convert to RGB
         image = image.convert("RGB")
-    output_path_jpg = os.path.join(output_dir, f"{output_name}.jpg")
+    output_path_jpg: str = os.path.join(output_dir, f"{output_name}.jpg")
     image.save(output_path_jpg, format="JPEG", quality=100)
 
 
-def parse_args(argv):
+def parse_args(argv: list[str]) -> argparse.Namespace:
     """
     Parses the command line arguments.
 
@@ -138,19 +143,28 @@ def parse_args(argv):
         type=str,
         help="The directory to save the images to.",
     )
+    parser.add_argument(
+        "-r",
+        "--resize",
+        type=int,
+        help="The size to resize the images to.",
+        required=False,
+        default=100,
+    )
     return parser.parse_args(argv)
 
 
-def main(argv):
+def main(argv: list[str]):
     """
     Main function that runs the script.
     """
-    args = parse_args(argv)
+    args: argparse.Namespace = parse_args(argv)
 
     process_images(
         args.non_circle_input_directory,
         args.circle_input_directory,
         args.output_directory,
+        resize=100,
     )
 
 
