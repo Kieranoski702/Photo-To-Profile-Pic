@@ -1,18 +1,18 @@
 #!/usr/bin/python3
-# -----------------------------------------------------------------------------
-# photo_changer.py -- Script to change the size of photos to 100x100 pixels
-#                     and make them into circles.
+# -------------------------------------------------------------------------------------
+# photo_to_profile_pic.py -- Script to change the size of photos and make them into
+#                            cicles.
 #
-# July 2023, Kieran Fowlds
-# -----------------------------------------------------------------------------
+# August 2023, Kieran Fowlds
+# -------------------------------------------------------------------------------------
 
 """
-Script to change the size of photos to 100x100 pixels and make them into
-circles. The script takes two directories as input, one containing photos
-that are already in a circle shape, and one containing photos that are not.
-The script will then make them into circles if they are not already and resize the 
-image to 100x100 pixels. The script will then save the photos to a specified 
-output directory in both PNG and JPEG format.
+Script to change the size of photos and make them into circles. The script takes two 
+directories as input, one containing photos that are already in a circle shape, and 
+one containing photos that are not as well as a directory to save the photos to. The 
+script will then make them into circles if they are not already and resize the image 
+to the resize value (default 100 by 100). The script will then save the photos to the 
+specified  output directory in both PNG and JPEG format.
 """
 
 import argparse
@@ -45,6 +45,8 @@ def process_images(
         os.makedirs(output_dir)
 
     for filename in os.listdir(circle_input_dir):
+        if not circle_input_dir:
+            continue
         input_path = os.path.join(circle_input_dir, filename)
 
         if not os.path.isfile(input_path):
@@ -56,6 +58,8 @@ def process_images(
         save_image(image, output_dir, filename)
 
     for filename in os.listdir(non_circle_input_dir):
+        if not non_circle_input_dir:
+            continue
         input_path: str = os.path.join(non_circle_input_dir, filename)
 
         if not os.path.isfile(input_path):
@@ -129,18 +133,21 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         "-n",
         "--non-circle-input-directory",
         type=str,
+        required=False,
         help="The directory containing the non-circle images.",
     )
     parser.add_argument(
         "-c",
         "--circle-input-directory",
         type=str,
+        required=False,
         help="The directory containing the circle images.",
     )
     parser.add_argument(
         "-o",
         "--output-directory",
         type=str,
+        required=True,
         help="The directory to save the images to.",
     )
     parser.add_argument(
